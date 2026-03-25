@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Streaming content from GitHub topic RSS feeds — AI, operating systems, games, and more.">
+  <meta name="theme-color" content="#58a6ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Git-Stream">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Git-Stream">
+  <meta property="og:description" content="Streaming content from GitHub RSS feeds — AI, OS, Games & more.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icons/icon-512.png">
+
+  <title>Git-Stream 🌊</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header id="header">
+    <button id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="logo">
+      <span class="logo-icon">🌊</span>
+      <span class="logo-text">Git-Stream</span>
+    </div>
+
+    <button id="search-btn" aria-label="Search">🔍</button>
+    <button id="refresh-btn" aria-label="Refresh feed">🔄</button>
+  </header>
+
+  <!-- ===================== SEARCH BAR ===================== -->
+  <div id="search-bar" role="search">
+    <input
+      id="search-input"
+      type="search"
+      placeholder="Search repos, topics…"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    >
+  </div>
+
+  <!-- ===================== SIDEBAR OVERLAY ===================== -->
+  <div id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- ===================== SIDEBAR / DRAWER ===================== -->
+  <nav id="sidebar" aria-label="Navigation menu">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">🌊</span>
+      <span class="sidebar-title">Git-Stream</span>
+    </div>
+
+    <!-- Infinity Suite Links -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">∞ Infinity Suite</div>
+
+      <a class="sidebar-link" href="https://www-infinity3.github.io/Gitpro/" target="_blank" rel="noopener">
+        <span class="link-icon">⚡</span> Gitpro
+        <span class="link-badge">Live</span>
+      </a>
+      <a class="sidebar-link" href="https://www-infinity3.github.io/Gitpal/" target="_blank" rel="noopener">
+        <span class="link-icon">🤝</span> Gitpal
+        <span class="link-badge">Live</span>
+      </a>
+      <a class="sidebar-link" href="https://www-infinity3.github.io/Gitpub/" target="_blank" rel="noopener">
+        <span class="link-icon">🍺</span> Gitpub
+        <span class="link-badge">Live</span>
+      </a>
+      <a class="sidebar-link" href="https://www-infinity3.github.io/Gitflow/" target="_blank" rel="noopener">
+        <span class="link-icon">≋</span> Gitflow
+        <span class="link-badge">Live</span>
+      </a>
+      <a class="sidebar-link" href="https://www-infinity4.github.io/Git-Stream/" target="_blank" rel="noopener">
+        <span class="link-icon">🌊</span> Git-Stream
+        <span class="link-badge">Here</span>
+      </a>
+    </div>
+
+    <!-- Feed Categories -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Feed Categories</div>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=ai]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">🤖</span> AI / Machine Learning
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=tools]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">🔧</span> Dev Tools
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=os]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">💻</span> Operating Systems
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=games]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">🎮</span> Games
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=web]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">🌐</span> Web
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=mobile]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">📱</span> Mobile / Android
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=crypto]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">₿</span> Crypto / Blockchain
+      </button>
+      <button class="sidebar-link" onclick="document.querySelector('[data-cat=music]')?.click();window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">🎵</span> Music
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Quick Actions</div>
+      <button class="sidebar-link" onclick="window.dispatchEvent(new CustomEvent('gitstream:refresh'));window.dispatchEvent(new CustomEvent('gitstream:closeSidebar'))">
+        <span class="link-icon">🔄</span> Refresh All Feeds
+      </button>
+      <button class="sidebar-link" id="install-btn" style="display:none">
+        <span class="link-icon">📲</span> Install App
+      </button>
+      <a class="sidebar-link" href="https://github.com/www-infinity4/Git-Stream" target="_blank" rel="noopener">
+        <span class="link-icon">⚙️</span> View Source
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      Git-Stream v1.0 · Infinity Suite<br>
+      PWA — Install on Android from browser menu
+    </div>
+  </nav>
+
+  <!-- ===================== CATEGORY TABS ===================== -->
+  <div id="categories" role="tablist" aria-label="Feed categories">
+    <div id="cat-tabs"></div>
+  </div>
+
+  <!-- ===================== MAIN FEED ===================== -->
+  <main id="main">
+    <div id="feed" role="feed" aria-label="GitHub topic feed"></div>
+  </main>
+
+  <!-- ===================== EMOJI ACTION BAR ===================== -->
+  <div id="emoji-bar" role="toolbar" aria-label="Quick actions"></div>
+
+  <!-- ===================== TOAST NOTIFICATIONS ===================== -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ===================== MODULE SCRIPTS ===================== -->
+  <script type="module" src="js/app.js"></script>
+
+  <!-- ===================== PWA INSTALL PROMPT ===================== -->
+  <script>
+    // Capture beforeinstallprompt for manual install button
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('install-btn');
+      if (installBtn) installBtn.style.display = 'flex';
+    });
+
+    document.getElementById('install-btn')?.addEventListener('click', () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choice) => {
+        if (choice.outcome === 'accepted') {
+          document.getElementById('install-btn').style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    });
+
+    // Close sidebar via custom event
+    window.addEventListener('gitstream:closeSidebar', () => {
+      document.getElementById('sidebar')?.classList.remove('open');
+      document.getElementById('sidebar-overlay')?.classList.remove('visible');
+      document.getElementById('hamburger-btn')?.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  </script>
+</body>
+</html>
