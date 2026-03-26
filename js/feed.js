@@ -3,8 +3,17 @@
  * Fetches GitHub Topics RSS feeds via a CORS proxy and parses them.
  */
 
-// CORS proxy for RSS fetching
-const PROXY = 'https://api.allorigins.win/get?url=';
+// CORS proxy chain — tried in order until one succeeds.
+// Each entry is a function that takes the target URL and returns the proxy URL.
+// Response format notes:
+//   allorigins.win  → JSON { contents: "<xml>" }
+//   corsproxy.io    → JSON { contents: "<xml>" } (same envelope)
+//   codetabs.com    → raw text body (note: 'quest' is the intentional param name)
+const PROXIES = [
+  (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
 
 // GitHub Topics RSS endpoint template
 function topicFeedUrl(topic) {
@@ -27,18 +36,33 @@ const EXPLORE_FEEDS = {
 
 /**
  * Fetch and parse an Atom/RSS feed URL.
+ * Tries each proxy in PROXIES in order; returns the first successful result.
  * @param {string} feedUrl - The feed URL to fetch
  * @returns {Promise<Array>} Array of feed item objects
  */
 async function fetchFeed(feedUrl) {
-  const proxyUrl = PROXY + encodeURIComponent(feedUrl);
-  const response = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  let lastError;
 
-  const data = await response.json();
-  if (!data.contents) throw new Error('Empty proxy response');
+  for (const buildProxy of PROXIES) {
+    try {
+      const proxyUrl = buildProxy(feedUrl);
+      const response = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-  return parseFeed(data.contents);
+      const data = await response.json();
+      // allorigins + corsproxy wrap the body in { contents: "..." };
+      // codetabs returns the raw XML string directly.
+      const xmlText = typeof data === 'string' ? data : (data.contents || data.body || '');
+      if (!xmlText) throw new Error('Empty proxy response');
+
+      return parseFeed(xmlText);
+    } catch (err) {
+      lastError = err;
+      // Try the next proxy
+    }
+  }
+
+  throw lastError || new Error('All proxies failed');
 }
 
 /**
